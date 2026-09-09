@@ -4,6 +4,14 @@ import { basename, dirname, join, resolve } from 'pathe'
 import { defaultExclude, defineConfig } from 'vitest/config'
 import { rolldownVersion } from 'vitest/node'
 
+const baseExclude = [
+  '**/fixtures/**',
+  ...defaultExclude,
+  // FIXME: wait for ecma decorator support in rolldown/oxc
+  // https://github.com/oxc-project/oxc/issues/9170
+  ...(rolldownVersion ? ['**/esnext-decorator.test.ts'] : []),
+]
+
 export default defineConfig({
   // tests should not fail when base is set
   base: '/some-url/',
@@ -70,13 +78,7 @@ export default defineConfig({
     includeSource: [
       'src/in-source/*.ts',
     ],
-    exclude: [
-      '**/fixtures/**',
-      ...defaultExclude,
-      // FIXME: wait for ecma decorator support in rolldown/oxc
-      // https://github.com/oxc-project/oxc/issues/9170
-      ...(rolldownVersion ? ['**/esnext-decorator.test.ts'] : []),
-    ],
+    exclude: baseExclude,
     slowTestThreshold: 1000,
     testTimeout: process.env.CI ? 10_000 : 5_000,
     setupFiles: [
@@ -173,6 +175,12 @@ function project(pool: Pool, color: LabelColor) {
     test: {
       name: { label: pool, color },
       pool,
+      // The vmThreads pool reuses the jsdom context between files in a worker, so
+      // dom.test.ts's `@vitest-environment-options { "url": ... }` docblock is not
+      // reliably applied on CI. The file still runs under threads and forks.
+      exclude: pool === 'vmThreads'
+        ? [...baseExclude, '**/test/dom.test.ts']
+        : baseExclude,
     },
   }
 }

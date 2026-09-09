@@ -1,12 +1,12 @@
 name: Issue Labeled
 
 on:
-  issues:
-    types: [labeled]
+  workflow_dispatch: {}
 
 jobs:
   reply-labeled:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       issues: write # for actions-cool/issues-helper to update issues
     steps:

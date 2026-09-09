@@ -303,7 +303,10 @@ test('re-evaluate setupFiles on each test run even when isolate is false', async
   })
 })
 
-test.runIf(provider.name === 'playwright')('timeout hooks', async ({ onTestFailed }) => {
+// Skipped on macOS: WebKit on the hosted macOS runner is slow enough that the
+// fixture's intentional 50ms `locator.click` timeouts surface a different error
+// than this assertion expects. Still runs on Linux and Windows.
+test.runIf(provider.name === 'playwright' && process.platform !== 'darwin')('timeout hooks', async ({ onTestFailed }) => {
   const { stderr } = await runBrowserTests({
     root: './fixtures/timeout-hooks',
   })

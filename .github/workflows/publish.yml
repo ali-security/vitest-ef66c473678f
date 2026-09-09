@@ -1,9 +1,7 @@
 name: Publish Package
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -17,6 +15,7 @@ jobs:
   publish:
     if: github.repository == 'vitest-dev/vitest'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment: Release
     steps:
       - uses: actions/checkout@v5

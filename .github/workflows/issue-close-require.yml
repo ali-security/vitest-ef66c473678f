@@ -1,12 +1,12 @@
 name: Issue Close Require
 
 on:
-  schedule:
-    - cron: '0 0 * * *'
+  workflow_dispatch: {}
 
 jobs:
   close-issues:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       issues: write # for actions-cool/issues-helper to update issues
     steps:
